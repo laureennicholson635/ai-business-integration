@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Course: How to Use AI at Work | Learning AI with Laureen</title>
+<meta name="description" content="Free mini-course: How to Use AI at Work. Learn how 68% of small businesses are using AI, the biggest mistakes to avoid, and the exact prompts to use starting today. From Laureen Nicholson at learningaiwithlaureen.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0D1B2A;
+  --teal: #00C2CB;
+  --gold: #F4A226;
+  --cream: #faf7f2;
+  --white: #ffffff;
+  --mid: #555;
+  --light: #f0fafb;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Montserrat', sans-serif; background: var(--cream); color: var(--navy); }
+
+/* PROGRESS BAR */
+#progress-bar { position:fixed; top:0; left:0; height:4px; background: linear-gradient(90deg, var(--teal), var(--gold)); width:0%; z-index:999; transition: width 0.2s; }
+
+/* HEADER */
+.site-header {
+  background: var(--navy); padding: 16px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top:4px; z-index: 100;
+}
+.site-header .logo { font-family: 'Dancing Script', cursive; color: var(--gold); font-size: 22px; }
+.site-header .back-link { color: var(--teal); font-size: 13px; font-weight: 600; text-decoration: none; }
+.site-header .back-link:hover { color: var(--gold); }
+.free-badge { background: var(--teal); color: var(--navy); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, #1a3a5c 100%);
+  color: white; padding: 80px 32px; text-align: center;
+}
+.hero .eyebrow { color: var(--teal); font-size: 12px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 16px; }
+.hero h1 { font-size: clamp(28px, 5vw, 52px); font-weight: 900; line-height: 1.1; margin-bottom: 24px; }
+.hero h1 span { color: var(--gold); }
+.hero .sub { font-size: clamp(15px, 2vw, 20px); color: rgba(255,255,255,0.8); max-width: 700px; margin: 0 auto 32px; line-height: 1.6; }
+.stat-row { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; margin: 40px 0; }
+.stat-pill { background: rgba(0,194,203,0.15); border: 1px solid rgba(0,194,203,0.4); border-radius: 40px; padding: 12px 24px; }
+.stat-pill .num { font-size: 28px; font-weight: 900; color: var(--gold); display: block; }
+.stat-pill .lbl { font-size: 12px; color: rgba(255,255,255,0.7); }
+.cta-hero { display: inline-block; background: var(--gold); color: var(--navy); font-weight: 800; padding: 16px 36px; border-radius: 40px; text-decoration: none; font-size: 16px; margin-top: 16px; transition: transform 0.2s; }
+.cta-hero:hover { transform: scale(1.03); }
+.instructor-note { margin-top: 32px; font-size: 13px; color: rgba(255,255,255,0.6); }
+.instructor-note strong { color: var(--teal); }
+
+/* COURSE NAV */
+.course-nav {
+  background: white; border-bottom: 2px solid var(--teal);
+  display: flex; overflow-x: auto; gap: 0;
+  position: sticky; top: 60px; z-index: 90;
+}
+.course-nav a { padding: 14px 20px; font-size: 12px; font-weight: 600; white-space: nowrap; text-decoration: none; color: var(--mid); border-bottom: 3px solid transparent; transition: all 0.2s; }
+.course-nav a:hover, .course-nav a.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+/* LESSON SECTIONS */
+.lesson {
+  max-width: 860px; margin: 0 auto; padding: 60px 32px;
+  border-bottom: 1px solid rgba(0,194,203,0.15);
+}
+.lesson-number { color: var(--teal); font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.lesson h2 { font-size: clamp(22px, 3vw, 32px); font-weight: 800; margin-bottom: 16px; line-height: 1.2; }
+.lesson h2 span { color: var(--teal); }
+.lesson p { font-size: 16px; line-height: 1.8; color: #333; margin-bottom: 16px; }
+.lesson p strong { color: var(--navy); }
+
+/* STAT CALLOUT */
+.stat-callout {
+  background: linear-gradient(135deg, var(--navy), #1a3a5c);
+  color: white; border-radius: 12px; padding: 28px 32px; margin: 28px 0;
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+}
+.stat-callout .big { font-size: clamp(40px,6vw,64px); font-weight: 900; color: var(--gold); line-height: 1; flex-shrink: 0; }
+.stat-callout .text p { font-size: 14px; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.5; }
+.stat-callout .text strong { color: white; font-size: 16px; }
+
+/* GRID CARDS */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin: 28px 0; }
+.card { background: white; border: 1px solid rgba(0,194,203,0.2); border-radius: 10px; padding: 20px; transition: box-shadow 0.2s; }
+.card:hover { box-shadow: 0 4px 20px rgba(0,194,203,0.15); }
+.card .icon { font-size: 28px; margin-bottom: 10px; }
+.card h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--navy); }
+.card p { font-size: 13px; color: var(--mid); line-height: 1.5; margin: 0; }
+
+/* PROMPT BOX */
+.prompt-box {
+  background: var(--light); border-left: 4px solid var(--teal);
+  border-radius: 0 8px 8px 0; padding: 20px 24px; margin: 20px 0;
+}
+.prompt-box .prompt-label { font-size: 10px; font-weight: 700; letter-spacing: 3px; color: var(--teal); text-transform: uppercase; margin-bottom: 8px; }
+.prompt-box .prompt-text { font-size: 14px; line-height: 1.7; color: var(--navy); font-style: italic; }
+.prompt-box .prompt-tip { font-size: 12px; color: var(--mid); margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,194,203,0.2); }
+
+/* WARNING BOX */
+.warning-box {
+  background: #FFF9ED; border: 1px solid var(--gold); border-radius: 8px;
+  padding: 20px 24px; margin: 20px 0;
+}
+.warning-box .wlabel { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; }
+.warning-box p { font-size: 14px; color: #4A3000; margin: 0; line-height: 1.6; }
+
+/* MISTAKE LIST */
+.mistake-list { list-style: none; margin: 20px 0; }
+.mistake-list li { display: flex; gap: 14px; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+.mistake-list li:last-child { border: none; }
+.mistake-list .num-badge { background: #fee; color: #c00; font-weight: 800; font-size: 14px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mistake-list .content h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.mistake-list .content p { font-size: 13px; color: var(--mid); margin: 0; line-height: 1.5; }
+
+/* CHECKLIST */
+.checklist { list-style: none; margin: 20px 0; }
+.checklist li { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; font-size: 15px; line-height: 1.5; }
+.checklist .check { color: var(--teal); font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+
+/* JOB TABS */
+.job-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.job-tab { padding: 8px 18px; border: 2px solid var(--teal); border-radius: 30px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: var(--teal); background: white; }
+.job-tab.active, .job-tab:hover { background: var(--teal); color: var(--navy); }
+.job-panel { display: none; }
+.job-panel.active { display: block; }
+
+/* TOOL COMPARISON */
+.tool-row { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+.tool-row:last-child { border: none; }
+.tool-name { font-weight: 700; font-size: 15px; min-width: 120px; }
+.tool-bar-wrap { flex: 1; background: rgba(0,194,203,0.1); border-radius: 30px; height: 8px; overflow: hidden; }
+.tool-bar { height: 8px; border-radius: 30px; background: linear-gradient(90deg, var(--teal), var(--gold)); }
+.tool-pct { font-size: 13px; font-weight: 700; color: var(--navy); min-width: 45px; text-align: right; }
+.tool-note { font-size: 12px; color: var(--mid); min-width: 160px; }
+
+/* ANIMATION */
+@keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform:none; } }
+.lesson { animation: fadeUp 0.5s ease both; }
+
+/* VIDEO PLACEHOLDER */
+.video-placeholder {
+  background: linear-gradient(135deg, var(--navy) 0%, #1a3a5c 100%);
+  border-radius: 12px; padding: 60px 32px; text-align: center; margin: 28px 0;
+  border: 2px solid rgba(0,194,203,0.3);
+}
+.play-btn { width: 72px; height: 72px; background: var(--gold); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; cursor: pointer; transition: transform 0.2s; }
+.play-btn:hover { transform: scale(1.1); }
+.play-btn svg { margin-left: 4px; }
+.video-placeholder h3 { color: white; font-size: 20px; margin-bottom: 8px; }
+.video-placeholder p { color: rgba(255,255,255,0.7); font-size: 14px; }
+.video-placeholder .vlinks { margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.vlink-btn { padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s; }
+.vlink-teal { background: var(--teal); color: var(--navy); }
+.vlink-outline { border: 2px solid rgba(255,255,255,0.4); color: white; }
+
+/* CTA SECTION */
+.cta-section {
+  background: linear-gradient(135deg, var(--navy) 0%, #1a3a5c 100%);
+  padding: 80px 32px; text-align: center;
+}
+.cta-section h2 { color: white; font-size: clamp(24px, 4vw, 40px); font-weight: 900; margin-bottom: 16px; }
+.cta-section p { color: rgba(255,255,255,0.8); font-size: 16px; max-width: 600px; margin: 0 auto 32px; }
+.cta-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.btn-gold { background: var(--gold); color: var(--navy); padding: 16px 36px; border-radius: 40px; font-weight: 800; text-decoration: none; font-size: 15px; transition: transform 0.2s; }
+.btn-gold:hover { transform: scale(1.03); }
+.btn-outline { border: 2px solid rgba(255,255,255,0.4); color: white; padding: 16px 36px; border-radius: 40px; font-weight: 700; text-decoration: none; font-size: 15px; }
+
+/* FOOTER */
+footer { background: var(--navy); color: rgba(255,255,255,0.5); text-align: center; padding: 32px; font-size: 13px; }
+footer a { color: var(--teal); text-decoration: none; }
+
+@media(max-width:600px) {
+  .stat-callout { flex-direction: column; }
+  .lesson { padding: 40px 20px; }
+  .hero { padding: 60px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header class="site-header">
+  <a href="https://learningaiwithlaureen.com" class="logo">Learning AI with Laureen</a>
+  <span class="free-badge">FREE COURSE</span>
+  <a href="https://learningaiwithlaureen.com" class="back-link">← Back to Site</a>
+</header>
+
+<nav class="course-nav">
+  <a href="#intro" class="active">Intro</a>
+  <a href="#lesson1">L1: The State of AI</a>
+  <a href="#lesson2">L2: How People Use AI</a>
+  <a href="#lesson3">L3: Biggest Mistakes</a>
+  <a href="#lesson4">L4: Best Practices</a>
+  <a href="#lesson5">L5: By Job Type</a>
+  <a href="#lesson6">L6: Best Tools</a>
+  <a href="#lesson7">L7: Your Action Plan</a>
+  <a href="#next">Next Steps</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="intro">
+  <div class="eyebrow">Free Mini-Course</div>
+  <h1>How to Use AI at Work<br><span>The Right Way</span></h1>
+  <p class="sub">68% of small businesses now use AI — but most are using it wrong. This free course shows you exactly how to work smarter, make fewer mistakes, and save 5+ hours every week.</p>
+
+  <div class="stat-row">
+    <div class="stat-pill"><span class="num">68%</span><span class="lbl">small businesses using AI</span></div>
+    <div class="stat-pill"><span class="num">40%</span><span class="lbl">productivity boost reported</span></div>
+    <div class="stat-pill"><span class="num">5-15hrs</span><span class="lbl">saved per week on average</span></div>
+    <div class="stat-pill"><span class="num">91%</span><span class="lbl">of SMBs report revenue boost</span></div>
+  </div>
+
+  <a href="#lesson1" class="cta-hero">Start the Free Course →</a>
+  <p class="instructor-note">Taught by <strong>Laureen Nicholson</strong> — AI Educator &amp; Automation Consultant | <strong>learningaiwithlaureen.com</strong></p>
+</section>
+
+<!-- LESSON 1 -->
+<section class="lesson" id="lesson1">
+  <div class="lesson-number">Lesson 1 of 7</div>
+  <h2>The Real State of AI at Work in <span>2026</span></h2>
+
+  <p>Before we get into tactics, let's look at where things actually stand. The numbers are more surprising than most people realize — and understanding the landscape will help you see exactly where the opportunity is for you.</p>
+
+  <div class="stat-callout">
+    <div class="big">50%</div>
+    <div class="text">
+      <strong>Half of all U.S. workers now use AI regularly.</strong>
+      <p>12% use it daily. 25% use it several times a week. And the number is accelerating faster than any technology in history — faster than the internet, faster than smartphones.</p>
+    </div>
+  </div>
+
+  <p>AI adoption has now surpassed the adoption rate of the personal computer in 1984 and the internet in 1998. At <strong>54.6% adoption</strong>, generative AI is the fastest-spreading technology ever recorded.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="icon">🏢</div>
+      <h4>91% of businesses use AI in at least one area</h4>
+      <p>From Fortune 500 companies to solo entrepreneurs — AI is mainstream.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📱</div>
+      <h4>68% of small businesses use AI regularly</h4>
+      <p>Up from 48% just one year ago. The shift is happening NOW.</p>
+    </div>
+    <div class="card">
+      <div class="icon">💰</div>
+      <h4>91% of SMBs report revenue boost from AI</h4>
+      <p>The businesses adopting early are pulling ahead. Fast.</p>
+    </div>
+    <div class="card">
+      <div class="icon">⚡</div>
+      <h4>Workers save 5.4% of work hours</h4>
+      <p>That's 2+ hours per week — for someone who uses it just occasionally. Daily users save 4+ hours.</p>
+    </div>
+  </div>
+
+  <div class="warning-box">
+    <div class="wlabel">⚠️ The Gap You Can Close</div>
+    <p>74% of AI's economic value is captured by just 20% of organizations — the ones who use it strategically, not casually. This course puts you in that 20%.</p>
+  </div>
+
+  <p>The bottom line from the research: <strong>AI adoption is no longer optional</strong>. But knowing how to use it well — that's still a rare skill. And that's exactly what you're about to learn.</p>
+</section>
+
+<!-- LESSON 2 -->
+<section class="lesson" id="lesson2">
+  <div class="lesson-number">Lesson 2 of 7</div>
+  <h2>How People Are <span>Actually</span> Using AI at Work</h2>
+
+  <p>Most people think AI is complicated and mysterious. The reality? The top use cases are incredibly practical — and you can start all of them today without any technical background.</p>
+
+  <div class="stat-callout">
+    <div class="big">3</div>
+    <div class="text">
+      <strong>The three most common AI work tasks:</strong>
+      <p>Research (57%) — finding and summarizing information fast<br>
+      Editing written content (52%) — cleaning up and improving drafts<br>
+      Drafting written content (47%) — creating emails, posts, and copy from scratch</p>
+    </div>
+  </div>
+
+  <p>Notice something? None of those require coding or technical skills. They're all things you probably already do — just slowly and manually. Let's break down the most valuable use cases:</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="icon">✉️</div>
+      <h4>Email & Communication</h4>
+      <p>Draft replies, write cold outreach, summarize long email threads. Saves 30+ min/day for most people.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📱</div>
+      <h4>Social Media Content</h4>
+      <p>Create a week of posts in 20 minutes. Captions, hooks, hashtags — all AI-assisted.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📋</div>
+      <h4>Meeting Summaries</h4>
+      <p>Paste rough notes → get a clean summary with action items, decisions, and follow-up email ready to send.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🔍</div>
+      <h4>Research & Analysis</h4>
+      <p>Summarize reports, analyze competitors, extract key insights from documents — in seconds.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📊</div>
+      <h4>Data Analysis</h4>
+      <p>62% of small businesses use AI for data analysis — spotting trends, summarizing spreadsheets, building reports.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🎯</div>
+      <h4>Strategy & Planning</h4>
+      <p>90-day plans, SWOT analysis, pricing strategy, goal setting — AI thinks through it with you.</p>
+    </div>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-label">Try This Right Now</div>
+    <div class="prompt-text">"Summarize the following email thread into: 3 key decisions made, 5 action items with owner and deadline, and 2 unresolved questions. Then draft a follow-up email to send to the team. [Paste email thread here]"</div>
+    <div class="prompt-tip">💡 This is one of the most time-saving prompts in existence. Most people spend 20-30 minutes doing this manually. AI does it in 10 seconds.</div>
+  </div>
+</section>
+
+<!-- LESSON 3 -->
+<section class="lesson" id="lesson3">
+  <div class="lesson-number">Lesson 3 of 7</div>
+  <h2>The <span>5 Biggest Mistakes</span> People Make with AI at Work</h2>
+
+  <p>Here's the truth most AI content won't tell you: <strong>a lot of people are using AI and getting mediocre results</strong> — not because AI is bad, but because they're making these five critical mistakes.</p>
+
+  <div class="stat-callout">
+    <div class="big">40%</div>
+    <div class="text">
+      <strong>40% of time saved by AI is lost to fixing AI mistakes.</strong>
+      <p>Workers average nearly 2 hours of rework per AI error. The people who benefit most from AI are the ones who know how to prompt well and review outputs critically.</p>
+    </div>
+  </div>
+
+  <ul class="mistake-list">
+    <li>
+      <div class="num-badge">1</div>
+      <div class="content">
+        <h4>Using the tool, skipping the strategy</h4>
+        <p>Most people open ChatGPT, ask something random, copy-paste it, and call it "using AI." That's not integration — that's chaos. AI works best when it's built into your workflow intentionally, not used as a last-minute assistant.</p>
+      </div>
+    </li>
+    <li>
+      <div class="num-badge">2</div>
+      <div class="content">
+        <h4>Giving terrible prompts</h4>
+        <p>"Write me an email about my business" is not a prompt. The output you get reflects the input you give. Vague prompt = vague result. The biggest gap between average and great AI users is almost always the prompt quality.</p>
+      </div>
+    </li>
+    <li>
+      <div class="num-badge">3</div>
+      <div class="content">
+        <h4>Using AI for complex judgment calls</h4>
+        <p>AI is exceptional at drafting, summarizing, structuring, and generating ideas. It should NOT be making nuanced decisions about your people, your strategy, or your ethics. Those require you — the human.</p>
+      </div>
+    </li>
+    <li>
+      <div class="num-badge">4</div>
+      <div class="content">
+        <h4>Inputting sensitive or confidential data</h4>
+        <p>Never paste proprietary client information, passwords, financial account details, or HIPAA-protected data into public AI tools. Use enterprise versions with proper security agreements if that's required for your work.</p>
+      </div>
+    </li>
+    <li>
+      <div class="num-badge">5</div>
+      <div class="content">
+        <h4>Switching tools instead of improving prompts</h4>
+        <p>"This AI tool is bad, let me try another one." 90% of the time, the tool isn't the problem — the prompt is. Master prompting in one tool before you start shopping for another.</p>
+      </div>
+    </li>
+  </ul>
+
+  <div class="warning-box">
+    <div class="wlabel">📊 Research-Backed Reality</div>
+    <p>Researchers found that workers who use AI frequently (daily) experience <strong>"AI brain fry"</strong> — increased mental fatigue from constantly monitoring AI output for errors. The solution: use AI for low-stakes tasks, apply human judgment for high-stakes ones. That's the balance that leads to sustainable productivity gains.</p>
+  </div>
+</section>
+
+<!-- LESSON 4 -->
+<section class="lesson" id="lesson4">
+  <div class="lesson-number">Lesson 4 of 7</div>
+  <h2>The <span>7 Best Practices</span> of High-Performing AI Users</h2>
+
+  <p>The top 20% of AI users — the ones capturing most of the productivity and revenue gains — consistently do these seven things. These aren't complicated. They just require intention.</p>
+
+  <ul class="checklist">
+    <li><span class="check">✅</span><strong>Start with the problem, not the tool.</strong> &nbsp;Ask: "What takes me the most time that's also repetitive?" That's where AI gives you the highest return. Don't just open AI and hope for inspiration.</li>
+    <li><span class="check">✅</span><strong>Give AI context, format, and tone — every time.</strong> &nbsp;The best prompts include: WHO the audience is, WHAT format you want, WHAT tone to use, and WHAT the goal is. All four = dramatically better output.</li>
+    <li><span class="check">✅</span><strong>Start small, measure results, then expand.</strong> &nbsp;Pick one task. Use AI on it for two weeks. Measure the time saved. Then expand to another task. Don't try to automate everything at once.</li>
+    <li><span class="check">✅</span><strong>Build AI into your workflow, not on top of it.</strong> &nbsp;The most effective AI users have specific prompts they run at specific times — "Every Monday I run this prompt." Not "I use AI when I remember to."</li>
+    <li><span class="check">✅</span><strong>Always review and edit AI output before using it.</strong> &nbsp;AI is your first draft generator, not your final answer. Review, personalize, and add your voice. The goal is to cut time, not cut corners.</li>
+    <li><span class="check">✅</span><strong>Protect sensitive data — always.</strong> &nbsp;If you wouldn't post it publicly on the internet, don't paste it into a public AI tool. Simple rule. Non-negotiable.</li>
+    <li><span class="check">✅</span><strong>Keep your prompts.</strong> &nbsp;The prompts that work well are gold. Save them in a document, a notes app, anywhere. Don't reinvent the wheel every time.</li>
+  </ul>
+
+  <div class="prompt-box">
+    <div class="prompt-label">The 4-Part Prompt Framework</div>
+    <div class="prompt-text">Every great prompt has four parts:<br><br>
+    [TASK] + [CONTEXT] + [FORMAT] + [TONE]<br><br>
+    Example: "Write a follow-up email [TASK] to a prospect who attended my webinar last week but hasn't purchased yet — they run a small healthcare practice [CONTEXT]. Under 150 words, 3 paragraphs: acknowledge the delay, give one key benefit, and end with a soft CTA to book a call [FORMAT]. Warm, professional, not pushy [TONE]."</div>
+    <div class="prompt-tip">💡 This framework applies to literally every prompt you'll ever write. Learn it once. Use it forever.</div>
+  </div>
+</section>
+
+<!-- LESSON 5 -->
+<section class="lesson" id="lesson5">
+  <div class="lesson-number">Lesson 5 of 7</div>
+  <h2>AI at Work: <span>By Job Type</span></h2>
+
+  <p>AI looks different depending on what you do every day. Here's exactly how to use it based on your role — with specific use cases and ready-to-use prompts for each.</p>
+
+  <div class="job-tabs">
+    <button class="job-tab active" onclick="showJob('owner')">Small Business Owner</button>
+    <button class="job-tab" onclick="showJob('marketing')">Marketer</button>
+    <button class="job-tab" onclick="showJob('hr')">HR / People</button>
+    <button class="job-tab" onclick="showJob('finance')">Finance</button>
+    <button class="job-tab" onclick="showJob('service')">Customer Service</button>
+    <button class="job-tab" onclick="showJob('healthcare')">Healthcare</button>
+  </div>
+
+  <div id="job-owner" class="job-panel active">
+    <div class="card-grid">
+      <div class="card"><div class="icon">📊</div><h4>Data Analysis (top use case)</h4><p>62% of small business owners use AI for data analysis — summarizing reports, spotting trends.</p></div>
+      <div class="card"><div class="icon">📱</div><h4>Content Marketing</h4><p>Write a month of social posts, email newsletters, and blog drafts in under 2 hours/month.</p></div>
+      <div class="card"><div class="icon">🤖</div><h4>Customer Service</h4><p>51% have integrated AI into customer service — faster resolution, 24/7 coverage, higher satisfaction.</p></div>
+      <div class="card"><div class="icon">👥</div><h4>HR Tasks</h4><p>Job descriptions, interview questions, onboarding docs — AI cuts HR admin time by 40%+.</p></div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label">Owner Prompt: Weekly Business Plan</div>
+      <div class="prompt-text">"Create a weekly action plan for my [type of business]. This week's priority: [topic]. Include: 3 key tasks each day Mon-Fri, one piece of content to create, and one growth action to take. Format as a clean table."</div>
+      <div class="prompt-tip">💡 Run this every Monday. 5 minutes to generate, 10 minutes to review. Your whole week structured and ready.</div>
+    </div>
+  </div>
+
+  <div id="job-marketing" class="job-panel">
+    <p>AI increases lead generation by <strong>50%</strong> and cuts content creation time by <strong>60-70%</strong> for marketing teams.</p>
+    <div class="card-grid">
+      <div class="card"><div class="icon">✍️</div><h4>Content Creation</h4><p>85% of AI-using marketers use it for content. Articles, captions, ads — at scale.</p></div>
+      <div class="card"><div class="icon">📧</div><h4>Email Campaigns</h4><p>Write full email sequences, subject line variants, and A/B test versions in minutes.</p></div>
+      <div class="card"><div class="icon">🔍</div><h4>SEO & Keywords</h4><p>Research keywords, write meta descriptions, and optimize content without an agency.</p></div>
+      <div class="card"><div class="icon">📊</div><h4>Ad Copy</h4><p>Generate 10 ad headline variations, 5 body copy options — test what converts fastest.</p></div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label">Marketer Prompt: Monthly Content Calendar</div>
+      <div class="prompt-text">"Create a 4-week social media content calendar for [business type] targeting [audience]. Include: 5 posts per week across [platforms]. Mix: 30% educational, 30% promotional, 20% storytelling, 20% engagement. For each post include: hook, body, CTA, and 5 hashtags."</div>
+      <div class="prompt-tip">💡 This one prompt replaces 4+ hours of monthly content planning.</div>
+    </div>
+  </div>
+
+  <div id="job-hr" class="job-panel">
+    <p><strong>53%</strong> of small business HR professionals plan to invest in AI this year. The ROI is real: AI reduces time-to-hire, improves candidate screening, and cuts onboarding admin time dramatically.</p>
+    <div class="card-grid">
+      <div class="card"><div class="icon">📄</div><h4>Job Descriptions</h4><p>Write compelling, bias-reduced job descriptions in minutes instead of hours.</p></div>
+      <div class="card"><div class="icon">🗣️</div><h4>Interview Questions</h4><p>Generate role-specific, structured interview questions with scoring guides.</p></div>
+      <div class="card"><div class="icon">🎓</div><h4>Onboarding Docs</h4><p>Create employee handbooks, training guides, and first-week plans quickly.</p></div>
+      <div class="card"><div class="icon">💼</div><h4>Performance Reviews</h4><p>Draft performance review templates and manager guidance frameworks.</p></div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label">HR Prompt: Job Description</div>
+      <div class="prompt-text">"Write a compelling job description for a [job title] at a [company size/type] company. Include: overview paragraph, 5 key responsibilities, required qualifications, nice-to-have qualifications, and company culture blurb. Tone: professional but human. Avoid gendered language."</div>
+    </div>
+  </div>
+
+  <div id="job-finance" class="job-panel">
+    <p>AI in finance isn't just for big banks. Small business finance teams use AI to cut reconciliation time, detect anomalies in spending, and speed up reporting cycles.</p>
+    <div class="card-grid">
+      <div class="card"><div class="icon">📈</div><h4>Financial Reports</h4><p>Summarize complex financial data into clear, readable executive summaries.</p></div>
+      <div class="card"><div class="icon">🔍</div><h4>Anomaly Detection</h4><p>Describe unusual transactions to AI for analysis and possible explanations.</p></div>
+      <div class="card"><div class="icon">💰</div><h4>Budget Planning</h4><p>Build budget frameworks, model scenarios, and stress-test assumptions faster.</p></div>
+      <div class="card"><div class="icon">📧</div><h4>Client Communication</h4><p>Draft invoices, payment reminder emails, and financial update letters professionally.</p></div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label">Finance Prompt: Budget Scenario</div>
+      <div class="prompt-text">"I'm planning my Q3 budget for a [business type] with [revenue range]. Here are my current main expense categories: [list them]. Analyze this mix, identify any concerns, suggest 3 cost optimization opportunities, and model what a 10% and 20% revenue decrease would mean for viability."</div>
+    </div>
+  </div>
+
+  <div id="job-service" class="job-panel">
+    <p>AI increases customer service productivity by <strong>14-36%</strong>. The biggest gains come from junior team members — AI levels the playing field by giving less experienced reps access to expert-quality responses.</p>
+    <div class="card-grid">
+      <div class="card"><div class="icon">💬</div><h4>Response Templates</h4><p>Build a library of AI-drafted templates for your 20 most common customer questions.</p></div>
+      <div class="card"><div class="icon">😤</div><h4>Complaint Handling</h4><p>AI drafts empathetic, professional complaint responses in seconds — no more blank screen.</p></div>
+      <div class="card"><div class="icon">📞</div><h4>Call Summaries</h4><p>Paste call notes → get a clean summary, action items, and follow-up email instantly.</p></div>
+      <div class="card"><div class="icon">⭐</div><h4>Review Responses</h4><p>Respond to Google/Yelp reviews professionally, quickly, and at scale.</p></div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label">Customer Service Prompt: Complaint Response</div>
+      <div class="prompt-text">"A customer sent this complaint: [paste complaint]. Write a professional, empathetic response that: acknowledges their frustration without admitting liability, explains what happened in simple terms, offers a specific resolution, and closes warmly. Under 150 words. Tone: human, not corporate."</div>
+      <div class="prompt-tip">💡 This prompt alone eliminates the most stressful part of customer service — the blank page when you're dealing with an upset customer.</div>
+    </div>
+  </div>
+
+  <div id="job-healthcare" class="job-panel">
+    <p>Healthcare AI is growing at <strong>2.4x year-over-year</strong>. The biggest category: ambient scribing — AI that listens to clinical conversations and automatically generates documentation.</p>
+    <div class="card-grid">
+      <div class="card"><div class="icon">📋</div><h4>Documentation</h4><p>AI ambient scribes reduce documentation time by 50%+ for clinicians, reducing burnout.</p></div>
+      <div class="card"><div class="icon">💌</div><h4>Patient Communication</h4><p>Write patient education materials, appointment reminders, and discharge instructions clearly.</p></div>
+      <div class="card"><div class="icon">🏥</div><h4>Administrative Tasks</h4><p>Prior auth letters, referral summaries, billing appeal letters — AI drafts them in seconds.</p></div>
+      <div class="card"><div class="icon">📊</div><h4>Practice Management</h4><p>Staff scheduling templates, policy documents, training materials — all AI-assisted.</p></div>
+    </div>
+    <div class="warning-box">
+      <div class="wlabel">⚠️ HIPAA Reminder</div>
+      <p>Never input patient PHI (Protected Health Information) into public AI tools like ChatGPT or Claude unless your organization has a BAA (Business Associate Agreement) in place. Use HIPAA-compliant AI tools for any patient-specific work.</p>
+    </div>
+  </div>
+</section>
+
+<!-- LESSON 6 -->
+<section class="lesson" id="lesson6">
+  <div class="lesson-number">Lesson 6 of 7</div>
+  <h2>The Best <span>AI Tools</span> for Work Right Now</h2>
+
+  <p>Here's the honest market breakdown based on current usage data — with my personal take on each one for small business owners and solo entrepreneurs.</p>
+
+  <div style="margin: 28px 0;">
+    <div class="tool-row">
+      <div class="tool-name">ChatGPT</div>
+      <div class="tool-bar-wrap"><div class="tool-bar" style="width:70.8%"></div></div>
+      <div class="tool-pct">70.8%</div>
+      <div class="tool-note">Most popular for work tasks</div>
+    </div>
+    <div class="tool-row">
+      <div class="tool-name">Copilot</div>
+      <div class="tool-bar-wrap"><div class="tool-bar" style="width:25.5%"></div></div>
+      <div class="tool-pct">25.5%</div>
+      <div class="tool-note">Best for Microsoft users</div>
+    </div>
+    <div class="tool-row">
+      <div class="tool-name">Gemini</div>
+      <div class="tool-bar-wrap"><div class="tool-bar" style="width:31.3%"></div></div>
+      <div class="tool-pct">31.3%</div>
+      <div class="tool-note">Best integrated with Google</div>
+    </div>
+    <div class="tool-row">
+      <div class="tool-name">Claude</div>
+      <div class="tool-bar-wrap"><div class="tool-bar" style="width:17.1%"></div></div>
+      <div class="tool-pct">17.1%</div>
+      <div class="tool-note">Best for long documents &amp; nuance</div>
+    </div>
+    <div class="tool-row">
+      <div class="tool-name">Copy.ai</div>
+      <div class="tool-bar-wrap"><div class="tool-bar" style="width:30%"></div></div>
+      <div class="tool-pct">Top pick</div>
+      <div class="tool-note">Best for sales copy &amp; emails</div>
+    </div>
+    <div class="tool-row">
+      <div class="tool-name">Writesonic</div>
+      <div class="tool-bar-wrap"><div class="tool-bar" style="width:25%"></div></div>
+      <div class="tool-pct">Top pick</div>
+      <div class="tool-note">Best for content &amp; social media</div>
+    </div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="icon">🆓</div>
+      <h4>Start Free: ChatGPT or Claude</h4>
+      <p>Free versions are genuinely powerful. Start here before spending any money. Master prompting first.</p>
+    </div>
+    <div class="card">
+      <div class="icon">✍️</div>
+      <h4>For Sales Copy: Copy.ai</h4>
+      <p>Emails, ads, landing pages. The output sounds like a human copywriter wrote it. Worth every dollar.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📱</div>
+      <h4>For Content: Writesonic</h4>
+      <p>Social posts, blogs, newsletters. Fast, consistent quality, and has brand voice training.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📧</div>
+      <h4>For Email Automation: GetResponse</h4>
+      <p>Not just AI — full email marketing. Build automated sequences that sell while you sleep.</p>
+    </div>
+  </div>
+
+  <div class="warning-box">
+    <div class="wlabel">💡 Laureen's Rule</div>
+    <p>The tool is the car. The prompt is the driver. A great driver in an average car beats a bad driver in a Ferrari every time. Before you spend money on tools, invest time in learning to prompt well. Everything gets better after that.</p>
+  </div>
+</section>
+
+<!-- LESSON 7 -->
+<section class="lesson" id="lesson7">
+  <div class="lesson-number">Lesson 7 of 7</div>
+  <h2>Your <span>7-Day Action Plan</span> — Start Today</h2>
+
+  <p>No more "I'll figure it out eventually." Here is your exact plan for the next 7 days. Each day takes 20 minutes or less. By Day 7, you will have saved at least 3 hours and built 4 working AI workflows for your business.</p>
+
+  <ul class="checklist" style="background: white; border-radius: 12px; padding: 24px; border: 1px solid rgba(0,194,203,0.2);">
+    <li><span class="check">📅</span><div><strong>Day 1 — Your Email Responder.</strong> &nbsp;Use AI to respond to 3 emails you've been putting off. Use the 4-part framework: task + context + format + tone. Note the time saved.</div></li>
+    <li><span class="check">📅</span><div><strong>Day 2 — Content Batch.</strong> &nbsp;Write 5 social media posts for the next week using AI. Schedule them. Done with content for the week in 15 minutes.</div></li>
+    <li><span class="check">📅</span><div><strong>Day 3 — Meeting Summary.</strong> &nbsp;After your next meeting, paste your notes into AI and ask for a clean summary + action items + follow-up email. Send it in under 2 minutes.</div></li>
+    <li><span class="check">📅</span><div><strong>Day 4 — Build Your Prompt Library.</strong> &nbsp;Open a Google Doc or Notes app. Save your 3 best prompts from Days 1-3. This becomes your personal AI toolkit.</div></li>
+    <li><span class="check">📅</span><div><strong>Day 5 — Automate One Repetitive Task.</strong> &nbsp;Identify the one task you do most often that AI could handle. Build a reusable prompt for it. Run it once today.</div></li>
+    <li><span class="check">📅</span><div><strong>Day 6 — Teach Someone.</strong> &nbsp;Share one AI tip with a colleague, client, or friend. Teaching reinforces learning — and you'll look like the smartest person in the room.</div></li>
+    <li><span class="check">📅</span><div><strong>Day 7 — Measure &amp; Plan.</strong> &nbsp;How many hours did you save this week? Write it down. Multiply by 52. That's your annual time savings. Now pick one more task to automate next week.</div></li>
+  </ul>
+
+  <div class="stat-callout" style="margin-top: 32px;">
+    <div class="big">2hrs</div>
+    <div class="text">
+      <strong>The minimum time you'll save in your first week following this plan.</strong>
+      <p>Daily AI users report 4+ hours saved per week. Occasional users: 2+ hours. Even on the low end, over a year that's 100+ hours returned to your life.</p>
+    </div>
+  </div>
+</section>
+
+<!-- NEXT STEPS -->
+<section id="next" class="cta-section">
+  <h2>You Finished the Course. Now What?</h2>
+  <p>You know the research. You have the framework. You have a 7-day plan. The only thing left is the prompts — and I've already written them for you.</p>
+  <div class="cta-row">
+    <a href="https://laureenlight.gumroad.com/l/inlssx" class="btn-gold">Get 100 Done-For-You Prompts — $27 →</a>
+    <a href="https://laureenlight.gumroad.com/l/cvvri" class="btn-outline">Free 5-Prompt Guide First ↓</a>
+  </div>
+  <p style="margin-top: 24px; font-size: 13px; color: rgba(255,255,255,0.5);">Use code <strong style="color: var(--gold);">FIRST10</strong> for 20% off the $27 guide → <strong style="color: white;">$21.60</strong></p>
+</section>
+
+<footer>
+  <p>© 2026 Learning AI with Laureen | <a href="https://learningaiwithlaureen.com">learningaiwithlaureen.com</a> | <a href="https://www.tiktok.com/@LearningAIwithLaureen">@LearningAIwithLaureen</a></p>
+  <p style="margin-top: 8px;">Taught by Laureen Nicholson — AI Educator &amp; Automation Consultant | Queens, NY → North Port, FL</p>
+</footer>
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const doc = document.documentElement;
+  const scrolled = doc.scrollTop / (doc.scrollHeight - doc.clientHeight) * 100;
+  document.getElementById('progress-bar').style.width = scrolled + '%';
+});
+
+// Nav active state
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.course-nav a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.course-nav a[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.4 });
+sections.forEach(s => observer.observe(s));
+
+// Job tabs
+function showJob(id) {
+  document.querySelectorAll('.job-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.job-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('job-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
