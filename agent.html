@@ -221,12 +221,10 @@
 
     .run-btn:active { transform: translateY(0); }
 
-    .run-btn:disabled {
+    .run-btn.too-short {
       background: var(--light);
       color: var(--gray);
-      cursor: not-allowed;
       box-shadow: none;
-      transform: none;
     }
 
     .run-btn .arrow { font-size: 1.1rem; }
@@ -627,7 +625,14 @@
       font-weight: 500;
     }
 
-    .proof-item .icon { font-size: 1rem; }
+    .proof-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--orange);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
 
     /* ── Footer ───────────────────────────────────────────────────────────── */
     .footer {
@@ -698,10 +703,10 @@
 
   <!-- Social Proof Strip -->
   <div class="proof-strip">
-    <div class="proof-item"><span class="icon">🤖</span> Powered by Claude AI</div>
-    <div class="proof-item"><span class="icon">⏱️</span> Results in ~20 seconds</div>
-    <div class="proof-item"><span class="icon">🎯</span> Built for YOUR business</div>
-    <div class="proof-item"><span class="icon">💸</span> 100% free</div>
+    <div class="proof-item"><span class="proof-dot"></span> Powered by Claude AI</div>
+    <div class="proof-item"><span class="proof-dot"></span> Results in ~20 seconds</div>
+    <div class="proof-item"><span class="proof-dot"></span> Built for YOUR business</div>
+    <div class="proof-item"><span class="proof-dot"></span> 100% free</div>
   </div>
 
   <!-- Input Section -->
@@ -717,7 +722,7 @@
     ></textarea>
     <div class="input-footer">
       <span class="char-hint">At least one full sentence to get started</span>
-      <button class="run-btn" id="run-btn" disabled>
+      <button class="run-btn too-short" id="run-btn">
         Generate My Automations <span class="arrow">→</span>
       </button>
     </div>
@@ -834,14 +839,19 @@
     // ── Input validation ──────────────────────────────────────────────────────
     textarea.addEventListener('input', () => {
       const val = textarea.value.trim();
-      runBtn.disabled = val.length < 15;
+      if (val.length >= 15) {
+        runBtn.classList.remove('too-short');
+      } else {
+        runBtn.classList.add('too-short');
+      }
     });
 
     // ── Quick-fill chips ──────────────────────────────────────────────────────
     chips.forEach(chip => {
       chip.addEventListener('click', () => {
         textarea.value = chip.dataset.fill;
-        textarea.dispatchEvent(new Event('input'));
+        runBtn.classList.remove('too-short');
+        errorBox.classList.remove('active');
         textarea.focus();
       });
     });
@@ -915,6 +925,4 @@
       return div.innerHTML;
     }
 
-    // ── Main run handler ──────────────────────────────────────────────────────
-    async function runAgent() {
-      const busi
+    // ── Main ru
