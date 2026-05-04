@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning AI with Laureen — I Am an Automation</title>
+  <meta name="description" content="Tell me what you do for work. In the next 20 seconds, I'll build you three custom automations — using your actual business, not a template.">
+  <meta property="og:title" content="I don't sell automations. I am one.">
+  <meta property="og:description" content="Tell me your business. Get 3 custom AI automations in 20 seconds.">
+  <meta property="og:url" content="https://learningaiwithlaureen.com/agent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange:      #F97316;
+      --orange-dark: #EA6C0A;
+      --orange-light: #FFF7ED;
+      --dark:        #111827;
+      --mid:         #374151;
+      --gray:        #6B7280;
+      --light:       #E5E7EB;
+      --lighter:     #F3F4F6;
+      --bg:          #FFFFFF;
+      --font:        'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--dark);
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Top Nav Bar ──────────────────────────────────────────────────────── */
+    .nav {
+      background: var(--bg);
+      border-bottom: 1px solid var(--light);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--dark);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-brand span { color: var(--orange); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+
+    .nav-live {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--gray);
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      background: #22C55E;
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    /* ── Hero Section ─────────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(180deg, #FFF7ED 0%, #FFFFFF 100%);
+      padding: 72px 24px 64px;
+      text-align: center;
+      border-bottom: 1px solid var(--light);
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--orange-light);
+      border: 1px solid #FED7AA;
+      color: #C2410C;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 100px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .hero-h1 {
+      font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+      font-weight: 800;
+      color: var(--dark);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .hero-h1 .accent {
+      color: var(--orange);
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--gray);
+      line-height: 1.75;
+      max-width: 560px;
+      margin: 20px auto 0;
+    }
+
+    .hero-sub strong { color: var(--mid); font-weight: 600; }
+
+    /* ── Input Section ────────────────────────────────────────────────────── */
+    .input-section {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 56px 24px 48px;
+    }
+
+    .input-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .input-hint {
+      font-size: 0.85rem;
+      color: var(--gray);
+      margin-bottom: 16px;
+    }
+
+    .input-box {
+      width: 100%;
+      border: 2px solid var(--light);
+      border-radius: 12px;
+      padding: 18px 20px;
+      font-family: var(--font);
+      font-size: 1rem;
+      color: var(--dark);
+      line-height: 1.65;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: var(--bg);
+      min-height: 100px;
+    }
+
+    .input-box::placeholder { color: #9CA3AF; }
+
+    .input-box:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+    }
+
+    .input-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .char-hint {
+      font-size: 0.78rem;
+      color: #9CA3AF;
+    }
+
+    .run-btn {
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 13px 28px;
+      font-family: var(--font);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.35);
+    }
+
+    .run-btn:hover {
+      background: var(--orange-dark);
+      box-shadow: 0 4px 16px rgba(249, 115, 22, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .run-btn:active { transform: translateY(0); }
+
+    .run-btn:disabled {
+      background: var(--light);
+      color: var(--gray);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .run-btn .arrow { font-size: 1.1rem; }
+
+    /* ── Quick-fill chips ─────────────────────────────────────────────────── */
+    .chips-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--gray);
+      margin-top: 28px;
+      margin-bottom: 10px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1.5px solid var(--light);
+      background: var(--bg);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--mid);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+      background: var(--orange-light);
+    }
+
+    /* ── Divider ──────────────────────────────────────────────────────────── */
+    .section-divider {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 24px;
+      border: none;
+      border-top: 1px solid var(--light);
+    }
+
+    /* ── Loading State ────────────────────────────────────────────────────── */
+    .loading-section {
+      display: none;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .loading-section.active { display: block; }
+
+    .loading-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 24px;
+    }
+
+    .loading-steps {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .loading-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.92rem;
+      color: #9CA3AF;
+      transition: color 0.35s;
+      font-weight: 500;
+    }
+
+    .loading-step.active { color: var(--dark); }
+    .loading-step.done   { color: #22C55E; }
+
+    .step-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      background: var(--lighter);
+      color: #9CA3AF;
+      flex-shrink: 0;
+      transition: all 0.35s;
+    }
+
+    .loading-step.active .step-icon {
+      background: #FFF7ED;
+      color: var(--orange);
+    }
+
+    .loading-step.done .step-icon {
+      background: #DCFCE7;
+      color: #16A34A;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border: 2px solid var(--orange);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results Section ──────────────────────────────────────────────────── */
+    .results-section {
+      display: none;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+
+    .results-section.active { display: block; }
+
+    .results-header {
+      margin-bottom: 8px;
+    }
+
+    .results-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #DCFCE7;
+      border: 1px solid #BBF7D0;
+      color: #15803D;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 100px;
+      letter-spacing: 0.02em;
+      margin-bottom: 14px;
+    }
+
+    .results-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark);
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      margin-bottom: 28px;
+    }
+
+    /* ── Automation Cards ─────────────────────────────────────────────────── */
+    .automation-card {
+      background: var(--bg);
+      border: 1.5px solid var(--light);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 16px;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .automation-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .automation-card:hover {
+      border-color: #FED7AA;
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.1);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .card-number {
+      background: var(--orange-light);
+      color: #C2410C;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 100px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .time-saved {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--orange);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--dark);
+      letter-spacing: -0.01em;
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+
+    .card-problem {
+      font-size: 0.9rem;
+      color: var(--gray);
+      line-height: 1.65;
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      background: var(--lighter);
+      border-radius: 8px;
+      border-left: 3px solid var(--orange);
+    }
+
+    .card-solution {
+      font-size: 0.92rem;
+      color: var(--mid);
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    .card-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tool-tag {
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: var(--lighter);
+      color: var(--mid);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--light);
+    }
+
+    /* ── CTA Box ──────────────────────────────────────────────────────────── */
+    .cta-box {
+      background: linear-gradient(135deg, #FFF7ED 0%, #FEF3C7 100%);
+      border: 1.5px solid #FED7AA;
+      border-radius: 16px;
+      padding: 32px;
+      margin-top: 28px;
+    }
+
+    .cta-box h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .cta-box p {
+      font-size: 0.92rem;
+      color: var(--mid);
+      line-height: 1.65;
+      margin-bottom: 22px;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .cta-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 13px 22px;
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 2px 8px rgba(249,115,22,0.3);
+    }
+
+    .cta-btn-primary:hover {
+      background: var(--orange-dark);
+      transform: translateY(-1px);
+    }
+
+    .cta-btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: transparent;
+      color: var(--mid);
+      border: 1.5px solid var(--light);
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+
+    .cta-btn-secondary:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    .remaining-note {
+      font-size: 0.78rem;
+      color: var(--gray);
+      margin-top: 16px;
+    }
+
+    .remaining-note span { color: var(--orange); font-weight: 600; }
+
+    /* ── Try Again ────────────────────────────────────────────────────────── */
+    .try-again-btn {
+      display: none;
+      margin-top: 20px;
+      background: none;
+      border: 1.5px solid var(--light);
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--gray);
+      cursor: pointer;
+      padding: 9px 16px;
+      transition: all 0.15s;
+    }
+
+    .try-again-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .try-again-btn.active { display: inline-flex; align-items: center; gap: 6px; }
+
+    /* ── Error Box ────────────────────────────────────────────────────────── */
+    .error-box {
+      display: none;
+      max-width: 680px;
+      margin: 0 auto 0;
+      padding: 0 24px;
+    }
+
+    .error-box.active { display: block; }
+
+    .error-inner {
+      background: #FEF2F2;
+      border: 1.5px solid #FECACA;
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-size: 0.88rem;
+      color: #DC2626;
+      line-height: 1.6;
+      margin-top: 16px;
+    }
+
+    /* ── Social Proof Strip ───────────────────────────────────────────────── */
+    .proof-strip {
+      background: var(--lighter);
+      border-top: 1px solid var(--light);
+      border-bottom: 1px solid var(--light);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .proof-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.82rem;
+      color: var(--gray);
+      font-weight: 500;
+    }
+
+    .proof-item .icon { font-size: 1rem; }
+
+    /* ── Footer ───────────────────────────────────────────────────────────── */
+    .footer {
+      background: var(--dark);
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .footer-brand {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .footer-brand span { color: var(--orange); }
+
+    .footer-meta {
+      font-size: 0.8rem;
+      color: #9CA3AF;
+      line-height: 1.75;
+    }
+
+    .footer-meta a { color: #9CA3AF; text-decoration: none; }
+    .footer-meta a:hover { color: var(--orange); }
+
+    /* ── Responsive ───────────────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .hero { padding: 48px 20px 44px; }
+      .input-section { padding: 40px 20px 36px; }
+      .loading-section, .results-section { padding-left: 20px; padding-right: 20px; }
+      .error-box { padding-left: 20px; padding-right: 20px; }
+      .run-btn { width: 100%; justify-content: center; }
+      .input-footer { flex-direction: column; align-items: stretch; }
+      .proof-strip { gap: 16px; }
+      .cta-buttons { flex-direction: column; }
+      .cta-btn-primary, .cta-btn-secondary { justify-content: center; }
+      .nav-right .nav-time { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a href="https://learningaiwithlaureen.com" class="nav-brand">Learning AI with <span>Laureen</span></a>
+    <div class="nav-right">
+      <div class="nav-live">
+        <div class="live-dot"></div>
+        <span id="visitor-count">1 visitor on site</span>
+      </div>
+      <span class="nav-time" id="live-clock" style="font-size:0.78rem;color:#9CA3AF;font-variant-numeric:tabular-nums;">--:--:--</span>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-tag">⚡ Live AI Agent</div>
+    <h1 class="hero-h1">
+      I don't sell automations.<br>
+      <span class="accent">I am one.</span>
+    </h1>
+    <p class="hero-sub">
+      Tell me what you do for work. In the next <strong>20 seconds</strong>, I'll build you
+      three custom automations — using your actual business, not a template.
+    </p>
+  </section>
+
+  <!-- Social Proof Strip -->
+  <div class="proof-strip">
+    <div class="proof-item"><span class="icon">🤖</span> Powered by Claude AI</div>
+    <div class="proof-item"><span class="icon">⏱️</span> Results in ~20 seconds</div>
+    <div class="proof-item"><span class="icon">🎯</span> Built for YOUR business</div>
+    <div class="proof-item"><span class="icon">💸</span> 100% free</div>
+  </div>
+
+  <!-- Input Section -->
+  <section class="input-section">
+    <label class="input-label" for="business-input">What does your business do?</label>
+    <p class="input-hint">Be specific — the more detail you give, the better your automations will be.</p>
+    <textarea
+      id="business-input"
+      class="input-box"
+      rows="3"
+      placeholder="e.g. I run a small dog grooming shop in Tampa and I'm drowning in DMs and appointment no-shows..."
+      maxlength="600"
+    ></textarea>
+    <div class="input-footer">
+      <span class="char-hint">At least one full sentence to get started</span>
+      <button class="run-btn" id="run-btn" disabled>
+        Generate My Automations <span class="arrow">→</span>
+      </button>
+    </div>
+
+    <p class="chips-label">Or try one of these:</p>
+    <div class="chips" id="chips">
+      <button class="chip" data-fill="I'm a Realtor in Florida struggling to follow up with leads after open houses and keep track of listings">🏠 Realtor</button>
+      <button class="chip" data-fill="I run a small bakery and spend hours every week taking custom cake orders over the phone and Instagram DMs">🧁 Bakery</button>
+      <button class="chip" data-fill="I'm a bookkeeper managing 15 small business clients and manually sending invoices and chasing late payments">📊 Bookkeeper</button>
+      <button class="chip" data-fill="I'm a photographer who loses hours editing, sending galleries, and following up with wedding clients via email">📸 Photographer</button>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- Error Box -->
+  <div class="error-box" id="error-box">
+    <div class="error-inner"></div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-section" id="loading-section">
+    <p class="loading-title">✨ Building your custom automations…</p>
+    <ul class="loading-steps">
+      <li class="loading-step" id="step-1">
+        <span class="step-icon">1</span> Reading your business
+      </li>
+      <li class="loading-step" id="step-2">
+        <span class="step-icon">2</span> Identifying your biggest time drains
+      </li>
+      <li class="loading-step" id="step-3">
+        <span class="step-icon">3</span> Building your custom automations
+      </li>
+      <li class="loading-step" id="step-4">
+        <span class="step-icon">4</span> Packaging results
+      </li>
+    </ul>
+  </div>
+
+  <!-- Results -->
+  <div class="results-section" id="results-section">
+    <div class="results-header">
+      <div class="results-tag">✅ Done — here are your results</div>
+      <p class="results-title" id="results-title">Your 3 custom AI automations:</p>
+    </div>
+
+    <div id="cards-container"></div>
+
+    <!-- CTA -->
+    <div class="cta-box" id="cta-section">
+      <h3>🔥 Want these actually built for your business?</h3>
+      <p>
+        Every person sees something different on this page — it's generated live from what you typed.
+        <strong>Laureen can build these automations for real</strong> so you start saving time this week.
+      </p>
+      <div class="cta-buttons">
+        <a href="https://www.tiktok.com/@LearningAIwithLaureen" target="_blank" class="cta-btn-primary">
+          DM @LearningAIwithLaureen →
+        </a>
+        <a href="https://learningaiwithlaureen.com" target="_blank" class="cta-btn-secondary">
+          Visit My Website
+        </a>
+      </div>
+      <p class="remaining-note" id="remaining-note"></p>
+    </div>
+
+    <button class="try-again-btn active" id="try-again-btn">← Try a different business</button>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p class="footer-brand">Learning AI with <span>Laureen</span></p>
+    <p class="footer-meta">
+      Laureen Nicholson · North Port, FL · Remote everywhere<br>
+      <a href="https://learningaiwithlaureen.com" target="_blank">learningaiwithlaureen.com</a>
+      &nbsp;·&nbsp;
+      <a href="https://www.tiktok.com/@LearningAIwithLaureen" target="_blank">@LearningAIwithLaureen</a>
+    </p>
+  </footer>
+
+  <script>
+    // ── Config ───────────────────────────────────────────────────────────────
+    const WORKER_URL = 'https://laureen-agent.laureennicholson635.workers.dev/generate';
+
+    // ── Live Clock ───────────────────────────────────────────────────────────
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('live-clock').textContent =
+        now.toTimeString().split(' ')[0];
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // Simulate slight visitor count variation for fun
+    const counts = [1, 2, 1, 3, 2, 1, 2];
+    let countIdx = 0;
+    setInterval(() => {
+      countIdx = (countIdx + 1) % counts.length;
+      document.getElementById('visitor-count').textContent =
+        `${counts[countIdx]} visitor${counts[countIdx] > 1 ? 's' : ''} on site`;
+    }, 7000);
+
+    // ── Elements ─────────────────────────────────────────────────────────────
+    const textarea       = document.getElementById('business-input');
+    const runBtn         = document.getElementById('run-btn');
+    const loadingSection = document.getElementById('loading-section');
+    const resultsSection = document.getElementById('results-section');
+    const errorBox       = document.getElementById('error-box');
+    const errorInner     = errorBox.querySelector('.error-inner');
+    const cardsContainer = document.getElementById('cards-container');
+    const tryAgainBtn    = document.getElementById('try-again-btn');
+    const chips          = document.querySelectorAll('.chip');
+
+    // ── Input validation ──────────────────────────────────────────────────────
+    textarea.addEventListener('input', () => {
+      const val = textarea.value.trim();
+      runBtn.disabled = val.length < 15;
+    });
+
+    // ── Quick-fill chips ──────────────────────────────────────────────────────
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        textarea.value = chip.dataset.fill;
+        textarea.dispatchEvent(new Event('input'));
+        textarea.focus();
+      });
+    });
+
+    // ── Loading steps animation ───────────────────────────────────────────────
+    const steps = ['step-1', 'step-2', 'step-3', 'step-4'];
+    let stepTimers = [];
+
+    function startLoadingAnimation() {
+      steps.forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('active', 'done');
+        el.querySelector('.step-icon').textContent = el.querySelector('.step-icon').textContent.replace(/[✓]/g, '') || el.getAttribute('data-num');
+      });
+
+      // Store step numbers
+      steps.forEach((id, i) => {
+        document.getElementById(id).querySelector('.step-icon').textContent = String(i + 1);
+      });
+
+      const delays = [0, 1200, 2800, 4500];
+      steps.forEach((id, i) => {
+        stepTimers.push(setTimeout(() => {
+          if (i > 0) {
+            const prev = document.getElementById(steps[i - 1]);
+            prev.classList.remove('active');
+            prev.classList.add('done');
+            prev.querySelector('.step-icon').textContent = '✓';
+          }
+          const el = document.getElementById(id);
+          el.classList.add('active');
+          el.querySelector('.step-icon').innerHTML = '<span class="spinner"></span>';
+        }, delays[i]));
+      });
+    }
+
+    function finishLoadingAnimation() {
+      stepTimers.forEach(clearTimeout);
+      steps.forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('active');
+        el.classList.add('done');
+        el.querySelector('.step-icon').textContent = '✓';
+      });
+    }
+
+    // ── Build result cards ────────────────────────────────────────────────────
+    function buildCards(automations) {
+      cardsContainer.innerHTML = '';
+      automations.forEach((a, i) => {
+        const card = document.createElement('div');
+        card.className = 'automation-card';
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="card-number">Automation ${i + 1} of ${automations.length}</span>
+            <span class="time-saved">⏱ Saves ${escapeHtml(a.time_saved || '')}</span>
+          </div>
+          <h2 class="card-title">${escapeHtml(a.title)}</h2>
+          <p class="card-problem">${escapeHtml(a.problem)}</p>
+          <p class="card-solution">${escapeHtml(a.solution)}</p>
+          <div class="card-tools">${(a.tools || []).map(t => `<span class="tool-tag">${escapeHtml(t)}</span>`).join('')}</div>
+        `;
+        cardsContainer.appendChild(card);
+        setTimeout(() => card.classList.add('visible'), 100 + i * 200);
+      });
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.appendChild(document.createTextNode(str || ''));
+      return div.innerHTML;
+    }
+
+    // ── Main run handler ──────────────────────────────────────────────────────
+    async function runAgent() {
+      const busi
