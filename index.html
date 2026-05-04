@@ -925,4 +925,89 @@
       return div.innerHTML;
     }
 
-    // ââ Main ru
+    // ââ Main run handler ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    async function runAgent() {
+      const business = textarea.value.trim();
+      if (business.length < 15) {
+        errorInner.textContent = 'Please describe your business in at least one sentence.';
+        errorBox.classList.add('active');
+        return;
+      }
+
+      errorBox.classList.remove('active');
+      resultsSection.classList.remove('active');
+      loadingSection.classList.add('active');
+      runBtn.classList.add('too-short');
+      stepTimers = [];
+      startLoadingAnimation();
+
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ business })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || `Server error ${res.status}`);
+        }
+
+        if (!data.automations || !Array.isArray(data.automations)) {
+          throw new Error('Invalid response from agent. Please try again.');
+        }
+
+        finishLoadingAnimation();
+
+        setTimeout(() => {
+          loadingSection.classList.remove('active');
+          resultsSection.classList.add('active');
+          buildCards(data.automations);
+          const rem = typeof data.remaining === 'number' ? data.remaining : null;
+          const remNote = document.getElementById('remaining-note');
+          if (rem !== null) {
+            remNote.innerHTML = rem > 0
+              ? `You have <span>${rem}</span> free generation${rem !== 1 ? 's' : ''} left today.`
+              : `You've used all your free generations today â come back tomorrow!`;
+          }
+          resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 600);
+
+      } catch (err) {
+        finishLoadingAnimation();
+        loadingSection.classList.remove('active');
+        runBtn.classList.remove('too-short');
+        errorInner.textContent = err.message.includes('rate') || err.message.includes('limit')
+          ? "You've used your 3 free generations for today. Come back tomorrow for 3 more!"
+          : "Something went wrong. Please try again in a moment.";
+        errorBox.classList.add('active');
+        stepTimers.forEach(clearTimeout);
+      }
+    }
+
+    // ââ Event listeners âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    runBtn.addEventListener('click', () => {
+      if (!runBtn.classList.contains('too-short')) runAgent();
+    });
+
+    textarea.addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        if (!runBtn.classList.contains('too-short')) runAgent();
+      }
+    });
+
+    tryAgainBtn.addEventListener('click', () => {
+      resultsSection.classList.remove('active');
+      loadingSection.classList.remove('active');
+      errorBox.classList.remove('active');
+      textarea.value = '';
+      runBtn.classList.add('too-short');
+      cardsContainer.innerHTML = '';
+      textarea.focus();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+  </script>
+</body>
+</html>
