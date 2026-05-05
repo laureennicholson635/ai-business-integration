@@ -560,6 +560,19 @@
       color: var(--gray);
       margin-top: 16px;
     }
+    /* ── Paywall Box ──────────────────────────────────────────────────────── */
+    .paywall-box { display: none; max-width: 680px; margin: 0 auto; padding: 0 24px; }
+    .paywall-box.active { display: block; }
+    .paywall-inner { background: linear-gradient(135deg,#FFF7ED 0%,#FFFBF7 100%); border: 2px solid var(--orange); border-radius: 14px; padding: 28px 24px; text-align: center; margin-top: 16px; }
+    .paywall-icon { font-size: 2rem; margin-bottom: 8px; }
+    .paywall-title { font-size: 1.1rem; font-weight: 700; color: var(--dark); margin: 0 0 10px; }
+    .paywall-desc { font-size: 0.9rem; color: #666; margin: 0 0 20px; line-height: 1.6; }
+    .paywall-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+    .paywall-btn { display: inline-block; padding: 12px 22px; border-radius: 8px; font-weight: 600; font-size: 0.88rem; text-decoration: none; transition: opacity 0.18s; cursor: pointer; }
+    .paywall-btn:hover { opacity: 0.82; }
+    .paywall-btn-primary { background: var(--orange); color: #fff; }
+    .paywall-btn-secondary { background: #fff; border: 1.5px solid var(--orange); color: var(--orange); }
+    .paywall-note { font-size: 0.78rem; color: #aaa; margin: 0; }
 
     .remaining-note span { color: var(--orange); font-weight: 600; }
 
@@ -743,6 +756,20 @@
     <div class="error-inner"></div>
   </div>
 
+  <!-- Paywall -->
+  <div class="paywall-box" id="paywall-box">
+    <div class="paywall-inner">
+      <div class="paywall-icon">⚡</div>
+      <h3 class="paywall-title">You've used your 3 free generations today</h3>
+      <p class="paywall-desc">These ideas were just a preview. Want to go deeper or generate more for a different business? Reach out and let's build the real thing together.</p>
+      <div class="paywall-actions">
+        <a href="https://www.tiktok.com/@LearningAIwithLaureen" target="_blank" class="paywall-btn paywall-btn-primary">💬 DM Me on TikTok</a>
+        <a href="mailto:laureennicholson635@gmail.com?subject=AI%20Automation%20Consultation" class="paywall-btn paywall-btn-secondary">📧 Email Laureen</a>
+      </div>
+      <p class="paywall-note">Free generations reset daily at midnight · learningaiwithlaureen.com</p>
+    </div>
+  </div>
+
   <!-- Loading State -->
   <div class="loading-section" id="loading-section">
     <p class="loading-title">â¨ Building your custom automationsâ¦</p>
@@ -832,6 +859,7 @@
     const resultsSection = document.getElementById('results-section');
     const errorBox       = document.getElementById('error-box');
     const errorInner     = errorBox.querySelector('.error-inner');
+    const paywallBox     = document.getElementById('paywall-box');
     const cardsContainer = document.getElementById('cards-container');
     const tryAgainBtn    = document.getElementById('try-again-btn');
     const chips          = document.querySelectorAll('.chip');
@@ -951,7 +979,9 @@
         const data = await res.json();
 
         if (!res.ok) {
-          throw new Error(data.error || `Server error ${res.status}`);
+          const errObj = new Error(data.error || `Server error ${res.status}`);
+          errObj.code = data.code || null;
+          throw errObj;
         }
 
         if (!data.automations || !Array.isArray(data.automations)) {
@@ -978,10 +1008,12 @@
         finishLoadingAnimation();
         loadingSection.classList.remove('active');
         runBtn.classList.remove('too-short');
-        errorInner.textContent = err.message.includes('rate') || err.message.includes('limit')
-          ? "You've used your 3 free generations for today. Come back tomorrow for 3 more!"
-          : "Something went wrong. Please try again in a moment.";
-        errorBox.classList.add('active');
+        if (err.code === 'IP_CAP' || err.code === 'GLOBAL_CAP') {
+          paywallBox.classList.add('active');
+        } else {
+          errorInner.textContent = 'Something went wrong. Please try again in a moment.';
+          errorBox.classList.add('active');
+        }
         stepTimers.forEach(clearTimeout);
       }
     }
@@ -1001,6 +1033,7 @@
       resultsSection.classList.remove('active');
       loadingSection.classList.remove('active');
       errorBox.classList.remove('active');
+      paywallBox.classList.remove('active');
       textarea.value = '';
       runBtn.classList.add('too-short');
       cardsContainer.innerHTML = '';
