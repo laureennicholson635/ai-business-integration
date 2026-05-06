@@ -663,7 +663,11 @@ function toggleMic() {
   $micBtn.classList.contains('recording') ? stopMic() : startMic();
 }
 function startMic() {
-  if (audioPlayer) { audioPlayer.pause(); setSpeaking(false); }
+  // Re-prime audio during this user gesture so iOS allows async playback after recognition
+  initAudio();
+  audioPlayer.src = SILENT_WAV;
+  audioPlayer.play().then(() => { audioPlayer.pause(); audioPlayer.src = ''; }).catch(() => {});
+  setSpeaking(false);
   recognition.start();
   $micBtn.classList.add('recording');
   $micIcon.textContent = '⏹';
