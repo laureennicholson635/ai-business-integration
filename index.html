@@ -462,7 +462,7 @@ const VOICE_ID = 'JHj1VD8u3GP01Korhp8r';
 let agentsGenerated = 0;
 const MAX_FREE = 2;
 let isMuted = false, isSpeaking = false;
-let recognition = null, currentAudio = null, audioCtx = null, analyser = null;
+let recognition = null, currentAudio = null;
 let conversationHistory = [];
 
 const $msg = document.getElementById('messages');
@@ -533,16 +533,15 @@ function drawMouth(amplitude) {
   ctx2d.restore();
 }
 
-let animFrame = null;
+let animFrame = null, mouthPhase = 0;
 function startMouthAnim() {
-  if (!analyser) { drawMouth(0); return; }
-  const data = new Uint8Array(analyser.frequencyBinCount);
+  if (animFrame) cancelAnimationFrame(animFrame);
+  mouthPhase = 0;
   function loop() {
-    analyser.getByteFrequencyData(data);
-    // Focus on speech frequencies (roughly 300-3000hz)
-    let sum = 0;
-    for (let i = 2; i < 28; i++) sum += data[i];
-    const amp = Math.min(sum / (26 * 255), 1);
+    mouthPhase += 0.14;
+    const amp = Math.max(0, Math.min(1,
+      0.28 + Math.sin(mouthPhase) * 0.22 + Math.sin(mouthPhase * 1.8) * 0.12
+    ));
     drawMouth(amp);
     animFrame = requestAnimationFrame(loop);
   }
@@ -551,15 +550,7 @@ function startMouthAnim() {
 
 function stopMouthAnim() {
   if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
-  // Settle to closed mouth
-  let amp = 0.08;
-  function settle() {
-    drawMouth(amp);
-    amp -= 0.01;
-    if (amp > 0) requestAnimationFrame(settle);
-    else ctx2d.clearRect(0,0,240,240);
-  }
-  settle();
+  ctx2d.clearRect(0, 0, 300, 300); // fully clear — no lingering mouth shape
 }
 
 // ── SPEAKING STATE ──────────────────────────────────────────────────
@@ -591,21 +582,6 @@ async function speak(text) {
     currentAudio = new Audio(url);
     currentAudio.onended = () => { setSpeaking(false); URL.revokeObjectURL(url); };
     currentAudio.onerror = () => setSpeaking(false);
-
-    // Try mouth animation via AudioContext — but don't let it break audio on mobile
-    try {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') await audioCtx.resume();
-      if (analyser) { try { analyser.disconnect(); } catch(e){} }
-      analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 256;
-      const src = audioCtx.createMediaElementSource(currentAudio);
-      src.connect(analyser);
-      analyser.connect(audioCtx.destination);
-    } catch(e) {
-      analyser = null; // Mobile fallback — play audio without mouth sync
-    }
-
     await currentAudio.play();
   } catch { setSpeaking(false); }
 }
