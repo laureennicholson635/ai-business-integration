@@ -200,6 +200,7 @@ body { font-family: 'Inter', sans-serif; background: var(--dark2); color: var(--
 .pay-btn:hover { background: var(--orange-light); }
 .pay-note { margin-top: 14px; font-size: 0.75rem; color: var(--text-muted); }
 
+@keyframes hintPulse { 0%,100%{background:rgba(0,0,0,0.52)} 50%{background:rgba(255,107,53,0.35)} }
 footer { text-align: center; padding: 28px 0; border-top: 1px solid rgba(255,255,255,0.06); color: var(--text-muted); font-size: 0.8rem; }
 footer a { color: var(--orange); text-decoration: none; }
 
@@ -212,6 +213,17 @@ footer a { color: var(--orange); text-decoration: none; }
 </style>
 </head>
 <body>
+
+<!-- AUDIO UNLOCK OVERLAY — disappears on first tap, then Laureen speaks -->
+<div id="audioOverlay" style="position:fixed;inset:0;z-index:9999;background:rgba(26,26,46,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:20px" onclick="unlockAndGreet()">
+  <img src="avatar.png.png" style="width:130px;height:130px;border-radius:50%;object-fit:cover;object-position:top center;border:3px solid #FF6B35;animation:avatarBob 3s ease-in-out infinite" onerror="this.style.display='none'">
+  <div style="text-align:center;color:white;max-width:320px;padding:0 20px">
+    <div style="font-size:2.4rem;margin-bottom:10px;animation:livePulse 1.5s ease-in-out infinite">🔊</div>
+    <div style="font-size:1.4rem;font-weight:900;margin-bottom:8px">Tap to meet AI Laureen</div>
+    <div style="font-size:0.88rem;color:rgba(255,255,255,0.6);line-height:1.5">She'll introduce herself and build you<br>2 free custom AI agents — right now</div>
+  </div>
+  <div style="background:#FF6B35;color:white;padding:13px 32px;border-radius:100px;font-weight:800;font-size:0.95rem;box-shadow:0 6px 24px rgba(255,107,53,0.5);animation:livePulse 1.5s ease-in-out infinite">▶ Tap anywhere to start</div>
+</div>
 
 <div class="bg-grid"></div>
 <div class="bg-orb"></div>
@@ -239,6 +251,11 @@ footer a { color: var(--orange); text-decoration: none; }
         <img src="avatar.png.png" alt="AI Laureen" class="avatar-img" id="avatarImg">
         <!-- Mouth canvas drawn over avatar -->
         <canvas class="mouth-canvas" id="mouthCanvas" width="300" height="300"></canvas>
+        <!-- Click-to-hear hint overlay -->
+        <div id="clickHint" style="position:absolute;inset:8px;border-radius:50%;background:rgba(0,0,0,0.52);z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:white;text-align:center;gap:8px;animation:hintPulse 2s ease-in-out infinite" onclick="playGreeting()">
+          <span style="font-size:2.2rem;line-height:1">▶</span>
+          <span style="font-size:0.78rem;font-weight:800;letter-spacing:0.5px;line-height:1.3">TAP TO HEAR<br>AI LAUREEN</span>
+        </div>
       </div>
       <div class="avatar-status"><div class="live-dot"></div> AI Laureen Online</div>
       <button class="avatar-mic-btn" id="avatarMicBtn" onclick="toggleMic()" title="Talk to AI Laureen">
@@ -284,8 +301,8 @@ footer a { color: var(--orange); text-decoration: none; }
     <div class="messages" id="messages"></div>
 
     <div class="paywall-box" id="paywallBox">
-      <h3>🔥 You've Used Your 2 Free Agents!</h3>
-      <p>AI Laureen just built you something real. Want more — or ready to have the real Laureen actually deploy these for you?</p>
+      <h3>🔥 Your 2 Free Agents Are Ready!</h3>
+      <p>Keep chatting with me as long as you want — I'm here 24/7! When you're ready to have the real Laureen actually <strong>build and deploy</strong> these for your business, hit the button below. 👇</p>
       <div class="paywall-btns">
         <a href="#work" class="btn-primary" style="font-size:0.88rem;padding:11px 20px">✨ Work With Real Laureen</a>
         <button onclick="dialUpLaureen()" class="btn-secondary" style="font-size:0.88rem;padding:11px 20px">📞 Dial Up Laureen Now</button>
@@ -469,15 +486,6 @@ const ctx2d = canvas.getContext('2d');
 // 60fps loop reads amplitude and draws an open/close mouth shape
 // directly on the canvas overlay, synced to Laureen's actual voice.
 
-function setupAudioAnalyser(audioEl) {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (analyser) { try { analyser.disconnect(); } catch(e){} }
-  analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 256;
-  const src = audioCtx.createMediaElementSource(audioEl);
-  src.connect(analyser);
-  analyser.connect(audioCtx.destination);
-}
 
 function drawMouth(amplitude) {
   ctx2d.clearRect(0, 0, 300, 300);
@@ -577,12 +585,27 @@ async function speak(text) {
     });
     if (!res.ok) { setSpeaking(false); return; }
     const blob = await res.blob();
+    if (!blob || blob.size === 0) { setSpeaking(false); return; }
     const url = URL.createObjectURL(blob);
     if (currentAudio) { currentAudio.pause(); currentAudio = null; }
     currentAudio = new Audio(url);
-    setupAudioAnalyser(currentAudio);
     currentAudio.onended = () => { setSpeaking(false); URL.revokeObjectURL(url); };
     currentAudio.onerror = () => setSpeaking(false);
+
+    // Try mouth animation via AudioContext — but don't let it break audio on mobile
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
+      if (analyser) { try { analyser.disconnect(); } catch(e){} }
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      const src = audioCtx.createMediaElementSource(currentAudio);
+      src.connect(analyser);
+      analyser.connect(audioCtx.destination);
+    } catch(e) {
+      analyser = null; // Mobile fallback — play audio without mouth sync
+    }
+
     await currentAudio.play();
   } catch { setSpeaking(false); }
 }
@@ -683,9 +706,9 @@ async function chatWithLaureen(msg) {
 // ── PAYWALL ──────────────────────────────────────────────────────────
 function showPaywall() {
   $paywall.classList.add('on');
-  $inputArea.style.display = 'none';
-  $usageBadge.textContent = '0 free left';
-  $usageBadge.style.color = '#EF4444';
+  // Keep input open — chat is unlimited, only agent generation is capped
+  $usageBadge.textContent = '💬 Chat unlimited';
+  $usageBadge.style.color = '#10B981';
 }
 
 function updateBadge() {
@@ -725,7 +748,12 @@ function setupSpeech() {
 
 function toggleMic() {
   if (!recognition) {
-    addMsg('laureen', "Voice chat works best in Chrome on desktop! On mobile, try Chrome (not Safari). Or just type your message below — I read those too! 😊");
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isIOS) {
+      addMsg('laureen', "Hey! 👋 Voice input isn't supported on iPhone Safari yet — but you can **type** your message below and I'll talk back to you! Just describe your business and hit send. 😊");
+    } else {
+      addMsg('laureen', "Voice chat works best in Chrome! Try opening this page in Chrome browser, or just type your message below — I read those too! 😊");
+    }
     return;
   }
   $micBtn.classList.contains('recording') ? stopMic() : startMic();
@@ -753,8 +781,19 @@ function stopMic() {
 }
 
 // ── GREETING ─────────────────────────────────────────────────────────
+let greetingSpoken = false;
+function unlockAndGreet() {
+  const overlay = document.getElementById('audioOverlay');
+  if (overlay) { overlay.style.opacity = '0'; overlay.style.transition = 'opacity 0.4s'; setTimeout(() => overlay.style.display = 'none', 400); }
+  const hint = document.getElementById('clickHint');
+  if (hint) hint.style.display = 'none';
+  playGreeting();
+}
 function playGreeting() {
-  speak("Hey! I'm AI Laureen. Click the mic button to talk to me, or type your business description below and I'll build you 2 free custom AI agents right now!");
+  if (!greetingSpoken) {
+    greetingSpoken = true;
+    speak("Hey, welcome! I'm AI Laureen, a 24/7 AI version of the real Laureen Nicholson. Hit that orange microphone button and talk to me, or just type below. Tell me about your business and I will build you 2 custom AI automation agents for free, right now, in under 30 seconds. So — what do you do?");
+  }
 }
 
 function scrollToChat() {
@@ -766,7 +805,6 @@ function scrollToChat() {
 window.addEventListener('load', () => {
   setTimeout(() => {
     addMsg('laureen', `Hey! 👋 Welcome — I'm **AI Laureen**, a 24/7 AI version of the real Laureen Nicholson.\n\nHere's how this works:\n\n🎤 **Talk to me** — hit the orange mic button in the chat box below, tell me about your business, and I'll respond out loud in my voice.\n\n📝 **Or type it** — describe your business or the problem eating up your time, and I'll build you **2 custom AI automation agents** on the spot. Free. No sign-up. Ready in under 30 seconds.\n\nAfter that, if you want those agents actually **built and deployed** for your real business — that's where the real Laureen comes in. She handles everything.\n\nSo — what kind of business do you run? 🤔`);
-    speak("Hey, welcome! I'm AI Laureen, a 24/7 AI version of the real Laureen Nicholson. Here's how this works. Hit that orange microphone button and talk to me, or just type below. Tell me about your business and I will build you 2 custom AI automation agents for free, right now, in under 30 seconds. So — what do you do?");
   }, 900);
   setupSpeech();
   setTimeout(() => drawMouth(0.03), 1000);
