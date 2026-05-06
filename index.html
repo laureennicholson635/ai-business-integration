@@ -507,10 +507,11 @@ async function speak(text) {
     if (!blob || blob.size === 0) { setSpeaking(false); return; }
     initAudio();
     audioPlayer.pause();
-    if (audioPlayer.src) URL.revokeObjectURL(audioPlayer.src);
+    if (audioPlayer.src && audioPlayer.src.startsWith('blob:')) URL.revokeObjectURL(audioPlayer.src);
     audioPlayer.src = URL.createObjectURL(blob);
+    audioPlayer.load(); // Required on iOS — tells browser a new source is ready
     await audioPlayer.play();
-  } catch { setSpeaking(false); }
+  } catch(e) { setSpeaking(false); }
 }
 
 function toggleMute() {
