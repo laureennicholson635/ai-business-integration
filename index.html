@@ -45,7 +45,7 @@ body { font-family: 'Inter', sans-serif; background: var(--dark2); color: var(--
 /* AVATAR STAGE */
 .avatar-stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 
-.avatar-ring-wrap { position: relative; width: 240px; height: 240px; }
+.avatar-ring-wrap { position: relative; width: 300px; height: 300px; }
 
 /* Spinning gradient ring */
 .spin-ring { position: absolute; inset: -4px; border-radius: 50%; background: conic-gradient(var(--orange) 0%, var(--purple) 40%, var(--orange) 100%); animation: spinRing 3s linear infinite; }
@@ -58,7 +58,13 @@ body { font-family: 'Inter', sans-serif; background: var(--dark2); color: var(--
 @keyframes spinRing { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
 /* MOUTH CANVAS — overlaid on avatar */
-.mouth-canvas { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); width: 240px; height: 240px; border-radius: 50%; pointer-events: none; }
+.mouth-canvas { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); border-radius: 50%; pointer-events: none; }
+
+/* MIC BUTTON under avatar */
+.avatar-mic-btn { width: 68px; height: 68px; border-radius: 50%; background: linear-gradient(135deg, var(--orange), #e53e3e); border: 3px solid rgba(255,255,255,0.15); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; color: white; font-size: 1.6rem; box-shadow: 0 6px 24px rgba(255,107,53,0.55); transition: all 0.2s; margin-top: 4px; }
+.avatar-mic-btn:hover { transform: scale(1.08); box-shadow: 0 8px 28px rgba(255,107,53,0.7); }
+.avatar-mic-btn.recording { background: linear-gradient(135deg, #e53e3e, #c53030); animation: micPulse 1s ease-in-out infinite; }
+.avatar-mic-btn-label { font-size: 0.55rem; font-weight: 700; letter-spacing: 0.5px; opacity: 0.9; font-family: 'Inter', sans-serif; line-height: 1; }
 
 /* Speaking glow */
 .avatar-ring-wrap.speaking .spin-ring { animation-duration: 0.5s; box-shadow: 0 0 30px var(--glow); }
@@ -215,9 +221,13 @@ footer a { color: var(--orange); text-decoration: none; }
         <div class="spin-ring-mask"></div>
         <img src="avatar.png.png" alt="AI Laureen" class="avatar-img" id="avatarImg">
         <!-- Mouth canvas drawn over avatar -->
-        <canvas class="mouth-canvas" id="mouthCanvas" width="240" height="240"></canvas>
+        <canvas class="mouth-canvas" id="mouthCanvas" width="300" height="300"></canvas>
       </div>
       <div class="avatar-status"><div class="live-dot"></div> AI Laureen Online</div>
+      <button class="avatar-mic-btn" id="avatarMicBtn" onclick="toggleMic()" title="Talk to AI Laureen">
+        <span id="avatarMicIcon">🎤</span>
+        <span class="avatar-mic-btn-label">TAP TO TALK</span>
+      </button>
       <div class="avatar-controls">
         <button class="ctrl-btn ctrl-mute" id="muteBtn" title="Mute/Unmute Laureen's voice" onclick="toggleMute()">🔊</button>
       </div>
@@ -453,39 +463,49 @@ function setupAudioAnalyser(audioEl) {
 }
 
 function drawMouth(amplitude) {
-  // amplitude: 0-1
-  ctx2d.clearRect(0, 0, 240, 240);
-  // Mouth center (roughly bottom third of face in the circle)
-  const cx = 120, cy = 165;
-  const mouthW = 36 + amplitude * 14;
-  const mouthH = 4 + amplitude * 22;
+  ctx2d.clearRect(0, 0, 300, 300);
+  // Mouth center on 300px canvas — lower portion of face
+  const cx = 150, cy = 212;
+  const w = 22 + amplitude * 14;  // half-width
+  const oh = amplitude * 18;       // open height
 
-  // Outer lips
-  ctx2d.beginPath();
-  ctx2d.ellipse(cx, cy, mouthW, mouthH + 3, 0, 0, Math.PI * 2);
-  ctx2d.fillStyle = '#5a1a00';
-  ctx2d.fill();
+  ctx2d.save();
 
-  // Inner mouth (teeth / darkness)
-  if (amplitude > 0.05) {
+  // Dark interior — only visible when mouth is open
+  if (amplitude > 0.04) {
     ctx2d.beginPath();
-    ctx2d.ellipse(cx, cy + 1, mouthW - 5, mouthH, 0, 0, Math.PI * 2);
-    ctx2d.fillStyle = '#1a0500';
+    ctx2d.ellipse(cx, cy + oh * 0.25, w - 3, Math.max(oh * 0.55, 1), 0, 0, Math.PI * 2);
+    ctx2d.fillStyle = 'rgba(15, 3, 0, 0.88)';
     ctx2d.fill();
-    // Teeth hint
-    if (amplitude > 0.15) {
+    // Teeth hint at high amplitude
+    if (amplitude > 0.2) {
       ctx2d.beginPath();
-      ctx2d.ellipse(cx, cy - 1, mouthW - 8, Math.min(mouthH * 0.4, 6), 0, 0, Math.PI * 2);
-      ctx2d.fillStyle = 'rgba(255,240,220,0.85)';
+      ctx2d.ellipse(cx, cy - 1, w - 8, Math.min(oh * 0.22, 5), 0, 0, Math.PI);
+      ctx2d.fillStyle = 'rgba(255,245,230,0.8)';
       ctx2d.fill();
     }
   }
 
-  // Lip highlight
+  // Upper lip (two curves meeting at center)
   ctx2d.beginPath();
-  ctx2d.ellipse(cx, cy - mouthH * 0.3, mouthW * 0.5, 2, 0, 0, Math.PI * 2);
-  ctx2d.fillStyle = 'rgba(255,160,100,0.35)';
-  ctx2d.fill();
+  ctx2d.moveTo(cx - w, cy);
+  ctx2d.bezierCurveTo(cx - w * 0.55, cy - 8, cx - w * 0.1, cy - 4, cx, cy - 2);
+  ctx2d.bezierCurveTo(cx + w * 0.1, cy - 4, cx + w * 0.55, cy - 8, cx + w, cy);
+  ctx2d.strokeStyle = 'rgba(100, 30, 5, 0.85)';
+  ctx2d.lineWidth = 2.2;
+  ctx2d.lineJoin = 'round';
+  ctx2d.stroke();
+
+  // Lower lip
+  ctx2d.beginPath();
+  ctx2d.moveTo(cx - w, cy);
+  ctx2d.bezierCurveTo(cx - w * 0.5, cy + 9 + oh, cx + w * 0.5, cy + 9 + oh, cx + w, cy);
+  ctx2d.strokeStyle = 'rgba(100, 30, 5, 0.85)';
+  ctx2d.lineWidth = 2.8;
+  ctx2d.lineJoin = 'round';
+  ctx2d.stroke();
+
+  ctx2d.restore();
 }
 
 let animFrame = null;
@@ -699,12 +719,20 @@ function startMic() {
   $micBtn.classList.add('recording');
   $micIcon.textContent = '⏹';
   $micLabel.textContent = 'Listening...';
+  const ab = document.getElementById('avatarMicBtn');
+  const ai = document.getElementById('avatarMicIcon');
+  if (ab) ab.classList.add('recording');
+  if (ai) ai.textContent = '⏹';
 }
 function stopMic() {
   recognition && recognition.stop();
   $micBtn.classList.remove('recording');
   $micIcon.textContent = '🎤';
   $micLabel.textContent = 'Tap to talk';
+  const ab = document.getElementById('avatarMicBtn');
+  const ai = document.getElementById('avatarMicIcon');
+  if (ab) ab.classList.remove('recording');
+  if (ai) ai.textContent = '🎤';
 }
 
 // ── GREETING ─────────────────────────────────────────────────────────
@@ -724,7 +752,7 @@ window.addEventListener('load', () => {
     speak("Hey, welcome! I'm AI Laureen, a 24/7 AI version of the real Laureen Nicholson. Here's how this works. Hit that orange microphone button and talk to me, or just type below. Tell me about your business and I will build you 2 custom AI automation agents for free, right now, in under 30 seconds. So — what do you do?");
   }, 900);
   setupSpeech();
-  setTimeout(() => drawMouth(0.04), 1000);
+  setTimeout(() => drawMouth(0.03), 1000);
 });
 </script>
 </body>
