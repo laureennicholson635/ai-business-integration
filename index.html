@@ -74,9 +74,6 @@ body { font-family: 'Inter', sans-serif; background: var(--dark2); color: var(--
 @keyframes avatarBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
 @keyframes spinRing { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-/* MOUTH CANVAS — overlaid on avatar */
-.mouth-canvas { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); border-radius: 50%; pointer-events: none; }
-
 /* MIC BUTTON under avatar */
 .avatar-mic-btn { width: 68px; height: 68px; border-radius: 50%; background: linear-gradient(135deg, var(--orange), #e53e3e); border: 3px solid rgba(255,255,255,0.15); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; color: white; font-size: 1.6rem; box-shadow: 0 6px 24px rgba(255,107,53,0.55); transition: all 0.2s; margin-top: 4px; }
 .avatar-mic-btn:hover { transform: scale(1.08); box-shadow: 0 8px 28px rgba(255,107,53,0.7); }
@@ -249,8 +246,6 @@ footer a { color: var(--orange); text-decoration: none; }
         <div class="spin-ring" id="spinRing"></div>
         <div class="spin-ring-mask"></div>
         <img src="avatar.png.png" alt="AI Laureen" class="avatar-img" id="avatarImg">
-        <!-- Mouth canvas drawn over avatar -->
-        <canvas class="mouth-canvas" id="mouthCanvas" width="300" height="300"></canvas>
         <!-- Click-to-hear hint overlay -->
         <div id="clickHint" style="position:absolute;inset:8px;border-radius:50%;background:rgba(0,0,0,0.52);z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:white;text-align:center;gap:8px;animation:hintPulse 2s ease-in-out infinite" onclick="playGreeting()">
           <span style="font-size:2.2rem;line-height:1">▶</span>
@@ -462,7 +457,7 @@ const VOICE_ID = 'JHj1VD8u3GP01Korhp8r';
 let agentsGenerated = 0;
 const MAX_FREE = 2;
 let isMuted = false, isSpeaking = false;
-let recognition = null, currentAudio = null;
+let recognition = null, audioPlayer = null;
 let conversationHistory = [];
 
 const $msg = document.getElementById('messages');
@@ -478,80 +473,6 @@ const $micBtn = document.getElementById('micBtn');
 const $micIcon = document.getElementById('micIcon');
 const $micLabel = document.getElementById('micLabel');
 const $muteBtn = document.getElementById('muteBtn');
-const canvas = document.getElementById('mouthCanvas');
-const ctx2d = canvas.getContext('2d');
-
-// ── MOUTH ANIMATION via Web Audio API ──────────────────────────────
-// When ElevenLabs audio plays, we pipe it through an AnalyserNode.
-// 60fps loop reads amplitude and draws an open/close mouth shape
-// directly on the canvas overlay, synced to Laureen's actual voice.
-
-
-function drawMouth(amplitude) {
-  ctx2d.clearRect(0, 0, 300, 300);
-  // Mouth center on 300px canvas — lower portion of face
-  const cx = 150, cy = 212;
-  const w = 22 + amplitude * 14;  // half-width
-  const oh = amplitude * 18;       // open height
-
-  ctx2d.save();
-
-  // Dark interior — only visible when mouth is open
-  if (amplitude > 0.04) {
-    ctx2d.beginPath();
-    ctx2d.ellipse(cx, cy + oh * 0.25, w - 3, Math.max(oh * 0.55, 1), 0, 0, Math.PI * 2);
-    ctx2d.fillStyle = 'rgba(15, 3, 0, 0.88)';
-    ctx2d.fill();
-    // Teeth hint at high amplitude
-    if (amplitude > 0.2) {
-      ctx2d.beginPath();
-      ctx2d.ellipse(cx, cy - 1, w - 8, Math.min(oh * 0.22, 5), 0, 0, Math.PI);
-      ctx2d.fillStyle = 'rgba(255,245,230,0.8)';
-      ctx2d.fill();
-    }
-  }
-
-  // Upper lip (two curves meeting at center)
-  ctx2d.beginPath();
-  ctx2d.moveTo(cx - w, cy);
-  ctx2d.bezierCurveTo(cx - w * 0.55, cy - 8, cx - w * 0.1, cy - 4, cx, cy - 2);
-  ctx2d.bezierCurveTo(cx + w * 0.1, cy - 4, cx + w * 0.55, cy - 8, cx + w, cy);
-  ctx2d.strokeStyle = 'rgba(100, 30, 5, 0.85)';
-  ctx2d.lineWidth = 2.2;
-  ctx2d.lineJoin = 'round';
-  ctx2d.stroke();
-
-  // Lower lip
-  ctx2d.beginPath();
-  ctx2d.moveTo(cx - w, cy);
-  ctx2d.bezierCurveTo(cx - w * 0.5, cy + 9 + oh, cx + w * 0.5, cy + 9 + oh, cx + w, cy);
-  ctx2d.strokeStyle = 'rgba(100, 30, 5, 0.85)';
-  ctx2d.lineWidth = 2.8;
-  ctx2d.lineJoin = 'round';
-  ctx2d.stroke();
-
-  ctx2d.restore();
-}
-
-let animFrame = null, mouthPhase = 0;
-function startMouthAnim() {
-  if (animFrame) cancelAnimationFrame(animFrame);
-  mouthPhase = 0;
-  function loop() {
-    mouthPhase += 0.14;
-    const amp = Math.max(0, Math.min(1,
-      0.28 + Math.sin(mouthPhase) * 0.22 + Math.sin(mouthPhase * 1.8) * 0.12
-    ));
-    drawMouth(amp);
-    animFrame = requestAnimationFrame(loop);
-  }
-  loop();
-}
-
-function stopMouthAnim() {
-  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
-  ctx2d.clearRect(0, 0, 300, 300); // fully clear — no lingering mouth shape
-}
 
 // ── SPEAKING STATE ──────────────────────────────────────────────────
 function setSpeaking(on) {
@@ -560,36 +481,42 @@ function setSpeaking(on) {
   $ringWrap.classList.toggle('speaking', on);
   $audioBars.classList.toggle('on', on);
   $chatBars.classList.toggle('on', on);
-  if (on) startMouthAnim();
-  else stopMouthAnim();
 }
 
 // ── SPEAK via ElevenLabs worker proxy ──────────────────────────────
+// Uses ONE persistent Audio element (unlocked on first tap) so iOS keeps working
+function initAudio() {
+  if (audioPlayer) return;
+  audioPlayer = new Audio();
+  audioPlayer.onended = () => setSpeaking(false);
+  audioPlayer.onerror = () => setSpeaking(false);
+}
+
 async function speak(text) {
   if (isMuted || !text.trim()) return;
   try {
     setSpeaking(true);
+    const clean = text.replace(/<[^>]*>/g,'').replace(/[*#🎉🔥✨🤖📞🎤🎥💳🌱🚀🤝]/g,'').trim().substring(0, 450);
     const res = await fetch(`${WORKER}/speak`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: text.replace(/<[^>]*>/g,'').replace(/[*#🎉🔥✨🤖📞🎤🎥💳🌱🚀🤝]/g,'').substring(0, 450), voice_id: VOICE_ID })
+      body: JSON.stringify({ text: clean, voice_id: VOICE_ID })
     });
     if (!res.ok) { setSpeaking(false); return; }
     const blob = await res.blob();
     if (!blob || blob.size === 0) { setSpeaking(false); return; }
-    const url = URL.createObjectURL(blob);
-    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-    currentAudio = new Audio(url);
-    currentAudio.onended = () => { setSpeaking(false); URL.revokeObjectURL(url); };
-    currentAudio.onerror = () => setSpeaking(false);
-    await currentAudio.play();
+    initAudio();
+    audioPlayer.pause();
+    if (audioPlayer.src) URL.revokeObjectURL(audioPlayer.src);
+    audioPlayer.src = URL.createObjectURL(blob);
+    await audioPlayer.play();
   } catch { setSpeaking(false); }
 }
 
 function toggleMute() {
   isMuted = !isMuted;
   $muteBtn.textContent = isMuted ? '🔇' : '🔊';
-  if (isMuted && currentAudio) { currentAudio.pause(); setSpeaking(false); }
+  if (isMuted && audioPlayer) { audioPlayer.pause(); setSpeaking(false); }
 }
 
 // ── MESSAGES ────────────────────────────────────────────────────────
@@ -735,7 +662,7 @@ function toggleMic() {
   $micBtn.classList.contains('recording') ? stopMic() : startMic();
 }
 function startMic() {
-  if (currentAudio) { currentAudio.pause(); setSpeaking(false); }
+  if (audioPlayer) { audioPlayer.pause(); setSpeaking(false); }
   recognition.start();
   $micBtn.classList.add('recording');
   $micIcon.textContent = '⏹';
@@ -757,13 +684,24 @@ function stopMic() {
 }
 
 // ── GREETING ─────────────────────────────────────────────────────────
+// Tiny silent WAV — playing this during the user gesture unlocks iOS audio
+const SILENT_WAV = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+
 let greetingSpoken = false;
 function unlockAndGreet() {
+  // Play a real (silent) audio file during the user gesture — this is what iOS requires
+  initAudio();
+  audioPlayer.src = SILENT_WAV;
+  audioPlayer.play().then(() => {
+    audioPlayer.pause();
+    audioPlayer.src = '';
+  }).catch(() => {});
   const overlay = document.getElementById('audioOverlay');
   if (overlay) { overlay.style.opacity = '0'; overlay.style.transition = 'opacity 0.4s'; setTimeout(() => overlay.style.display = 'none', 400); }
   const hint = document.getElementById('clickHint');
   if (hint) hint.style.display = 'none';
-  playGreeting();
+  // Small delay so the unlock completes before we fetch & play the greeting
+  setTimeout(playGreeting, 300);
 }
 function playGreeting() {
   if (!greetingSpoken) {
@@ -783,7 +721,6 @@ window.addEventListener('load', () => {
     addMsg('laureen', `Hey! 👋 Welcome — I'm **AI Laureen**, a 24/7 AI version of the real Laureen Nicholson.\n\nHere's how this works:\n\n🎤 **Talk to me** — hit the orange mic button in the chat box below, tell me about your business, and I'll respond out loud in my voice.\n\n📝 **Or type it** — describe your business or the problem eating up your time, and I'll build you **2 custom AI automation agents** on the spot. Free. No sign-up. Ready in under 30 seconds.\n\nAfter that, if you want those agents actually **built and deployed** for your real business — that's where the real Laureen comes in. She handles everything.\n\nSo — what kind of business do you run? 🤔`);
   }, 900);
   setupSpeech();
-  setTimeout(() => drawMouth(0.03), 1000);
 });
 </script>
 </body>
